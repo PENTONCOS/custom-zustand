@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+// import { create } from 'zustand';
+import { create } from './customZustand';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const useXxxStore = create(
+	logMiddleware(set => ({
+		aaa: '',
+		bbb: '',
+		updateAaa: value => set(() => ({ aaa: value })),
+		updateBbb: value => set(() => ({ bbb: value }))
+	}))
+);
+
+function logMiddleware(func) {
+	return function (set, get, store) {
+		function newSet(...args) {
+			return set(...args);
+		}
+
+		return func(newSet, get, store);
+	};
 }
 
-export default App;
+export default function App() {
+	const updateAaa = useXxxStore(state => state.updateAaa);
+	const aaa = useXxxStore(state => state.aaa);
+
+	return (
+		<div>
+			<input
+				onChange={e => updateAaa(e.currentTarget.value)}
+				value={aaa}
+			/>
+			<Bbb></Bbb>
+		</div>
+	);
+}
+
+function Bbb() {
+	return (
+		<div>
+			<Ccc></Ccc>
+		</div>
+	);
+}
+
+function Ccc() {
+	const aaa = useXxxStore(state => state.aaa);
+	return <p>hello, {aaa}</p>;
+}
